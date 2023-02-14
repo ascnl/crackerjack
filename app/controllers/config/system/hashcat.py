@@ -30,6 +30,7 @@ def hashcat_save():
     hashcat_force = int(request.form.get('hashcat_force', 0))
     wordlists_path = request.form['wordlists_path'].strip()
     uploaded_hashes_path = request.form['uploaded_hashes_path'].strip()
+    hashcat_potfile_path = request.form['hashcat_potfile_path'].strip()
 
     has_errors = False
     # Validate wordlist
@@ -77,6 +78,14 @@ def hashcat_save():
         has_errors = True
         flash('Hashcat Status Interval must be set', 'error')
 
+    # Validate potfile
+    if len(hashcat_potfile_path) == 0 or not os.path.isdir(os.path.split(hashcat_potfile_path)[0]):
+        has_errors = True
+        flash("Hashcat potfile path directory does not exist", 'error')
+    elif not os.access(os.path.split(hashcat_potfile_path)[0],os.W_OK):
+        has_errors = True
+        flash("Hashcat potfile path is not writable", 'error')
+
     if has_errors:
         return redirect(url_for('config.hashcat'))
 
@@ -91,6 +100,7 @@ def hashcat_save():
     settings.save('hashcat_force', hashcat_force)
     settings.save('wordlists_path', wordlists_path)
     settings.save('uploaded_hashes_path', uploaded_hashes_path)
+    settings.save('hashcat_potfile_path', hashcat_potfile_path)
 
     flash('Settings saved', 'success')
     return redirect(url_for('config.hashcat'))

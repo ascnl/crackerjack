@@ -15,7 +15,7 @@ from flask import send_file
 
 
 class SessionManager:
-    def __init__(self, hashcat, screens, wordlists, filesystem, webpush, shell, device_profile_manager):
+    def __init__(self, hashcat, screens, wordlists, filesystem, webpush, shell, device_profile_manager, general_potfile):
         self.hashcat = hashcat
         self.screens = screens
         self.wordlists = wordlists
@@ -25,6 +25,7 @@ class SessionManager:
         self.session_filesystem = SessionFileSystem(filesystem)
         self.cmd_sleep = 2
         self.device_profile_manager = device_profile_manager
+        self.general_potfile = general_potfile
 
     def sanitise_name(self, name):
         return re.sub(r'\W+', '', name)
@@ -253,7 +254,9 @@ class SessionManager:
                 int(session.hashcat.contains_usernames),
                 session.hashcat.device_list
             )
-
+            # Congregating the potfile to 
+            command[f"; cat {self.session_filesystem.get_potfile_path(session.user_id, session_id)} {self.general_potfile} | sort -u > {self.general_potfile}"] = ''
+            # print(command)
             # Before we start a new session, rename the previous "screen.log" file
             # so that we can determine errors/state easier.
             self.session_filesystem.backup_screen_log_file(session.user_id, session_id)
@@ -296,6 +299,8 @@ class SessionManager:
             # Send an "s" command to show current status.
             screen.execute({'s': ''})
 
+            # Congregating the potfile
+            screen.execute(f"; cat {self.session_filesystem.get_potfile_path(session.user_id, session_id)} {self.general_potfile} | sort -u > {self.general_potfile}")
             # Wain a second.
             time.sleep(1)
         elif action == 'stop':

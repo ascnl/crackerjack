@@ -38,7 +38,8 @@ class Provider:
             self.filesystem(),
             self.webpush(),
             self.shell(),
-            self.device_profiles()
+            self.device_profiles(),
+            self.general_potfile()
         )
         return session
 
@@ -84,6 +85,10 @@ class Provider:
     def masks(self):
         settings = self.settings()
         return MasksManager(self.filesystem(), settings.get('hashcat_masks_path', ''))
+    
+    def general_potfile(self):
+        settings = self.settings()
+        return settings.get('hashcat_potfile_path')
 
     def ldap(self):
         settings = self.settings()

@@ -493,7 +493,7 @@ def status(session_id):
 
     user_id = 0 if current_user.admin else current_user.id
     session = sessions.get(user_id=user_id, session_id=session_id)[0]
-
+    print(f"Status request, {session.hashcat.state}")
     return json.dumps({'result': True, 'status': session.hashcat.state})
 
 
